@@ -13,16 +13,54 @@ namespace EmailHeadersViewer
     {
         private Microsoft.Office.Tools.CustomTaskPane taskPane;
         public HeadersViewer userControl;
-        private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
+
+        private void RibbonEmailHeaders_Load(object sender, RibbonUIEventArgs e)
         {
+            // Subscribe to the ActiveInspector events
+            Outlook.Inspectors inspectors = Globals.ThisAddIn.Application.Inspectors;
+            inspectors.NewInspector += new Outlook.InspectorsEvents_NewInspectorEventHandler(Inspectors_NewInspector);
+
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null)
+            {
+                ((Outlook.InspectorEvents_10_Event)inspector).Activate += new Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activate);
+                ((Outlook.InspectorEvents_10_Event)inspector).Deactivate += new Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivate);
+            }
+        }
+
+        private void Inspectors_NewInspector(Outlook.Inspector Inspector)
+        {
+            ((Outlook.InspectorEvents_10_Event)Inspector).Activate += new Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activate);
+            ((Outlook.InspectorEvents_10_Event)Inspector).Deactivate += new Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivate);
+        }
+
+        private void Inspector_Activate()
+        {
+            // Get the selected email's headers
+            if (userControl != null)
+            {
+                string headers = GetSelectedEmailHeaders();
+                userControl.DisplayHeaders(headers);
+                userControl.DisplayHeadersAll(headers);
+            }
+        }
+
+        private void Inspector_Deactivate()
+        {
+            // Clear the headers
+            if (userControl != null)
+            {
+                userControl.DisplayHeaders("");
+                userControl.DisplayHeadersAll("");
+            }
         }
 
         public static string GetSelectedEmailHeaders()
         {
             string headers = string.Empty;
-            Outlook.Selection selectedItems = Globals.ThisAddIn.Application.ActiveExplorer().Selection;
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
 
-            if (selectedItems.Count == 1 && selectedItems[1] is Outlook.MailItem mailItem)
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
             {
                 headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
             }
@@ -32,7 +70,7 @@ namespace EmailHeadersViewer
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
-            if (taskPane == null)
+            if (taskPane == null || !taskPane.Visible)
             {
                 userControl = new HeadersViewer();
                 taskPane = Globals.ThisAddIn.CustomTaskPanes.Add(userControl, "Headers Viewer");
@@ -47,6 +85,7 @@ namespace EmailHeadersViewer
             // Get the selected email's headers
             string headers = GetSelectedEmailHeaders();
             userControl.DisplayHeaders(headers);
+            userControl.DisplayHeadersAll(headers);
         }
     }
 }

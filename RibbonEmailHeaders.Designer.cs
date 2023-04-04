@@ -44,9 +44,9 @@
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.ControlId.OfficeId = "TabMail";
+            this.tab1.ControlId.OfficeId = "TabReadMessage";
             this.tab1.Groups.Add(this.group1);
-            this.tab1.Label = "TabMail";
+            this.tab1.Label = "TabReadMessage";
             this.tab1.Name = "tab1";
             // 
             // group1
@@ -69,7 +69,7 @@
             this.Name = "RibbonEmailHeaders";
             this.RibbonType = "Microsoft.Outlook.Explorer, Microsoft.Outlook.Mail.Read";
             this.Tabs.Add(this.tab1);
-            this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1_Load);
+            this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.RibbonEmailHeaders_Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
             this.group1.ResumeLayout(false);

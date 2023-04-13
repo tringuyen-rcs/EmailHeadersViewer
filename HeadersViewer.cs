@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 
 namespace EmailHeadersViewer
@@ -21,6 +22,7 @@ namespace EmailHeadersViewer
 
         public void DisplayHeaders(string headers)
         {
+            dataGridViewHeaders.DataSource = null;
             string[] headersArray = headers.Split(new string[] { "\r\n" }, StringSplitOptions.None);
             DataTable dtHeaders = new DataTable();
             dtHeaders.Columns.Add("Header", typeof(string));
@@ -42,9 +44,12 @@ namespace EmailHeadersViewer
             }
 
             dataGridViewHeaders.DataSource = dtHeaders;
-            DataGridViewColumn column = dataGridViewHeaders.Columns[1];
-            dataGridViewHeaders.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            column.FillWeight = 1;
+            if (dataGridViewHeaders.Columns.Count > 1)
+            {
+                DataGridViewColumn column = dataGridViewHeaders.Columns[1];
+                dataGridViewHeaders.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                column.FillWeight = 1;
+            }
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -88,7 +93,12 @@ namespace EmailHeadersViewer
 
         private void reloadButton_Click(object sender, EventArgs e)
         {
-            this.DisplayHeaders(RibbonEmailHeaders.GetSelectedEmailHeaders());
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeaders(headers);
+            }
         }
 
         private void CopyAllButton2_Click(object sender, EventArgs e)
@@ -127,7 +137,12 @@ namespace EmailHeadersViewer
 
         private void reloadButton2_Click(object sender, EventArgs e)
         {
-            this.DisplayHeadersAll(RibbonEmailHeaders.GetSelectedEmailHeaders());
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeaders(headers);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Tools.Outlook;
+﻿using Microsoft.Office.Interop.Outlook;
+using Microsoft.Office.Tools.Outlook;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,7 +29,7 @@ namespace EmailHeadersViewer
             dtHeaders.Columns.Add("Header", typeof(string));
             dtHeaders.Columns.Add("Value", typeof(string));
 
-            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path" }; // add more headers to display here
+            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path", "x-beauceron-simulation" }; // add more headers to display here
 
             foreach (string header in headersArray)
             {
@@ -59,16 +60,21 @@ namespace EmailHeadersViewer
 
         private void copyButton_Click(object sender, EventArgs e)
         {
-            string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            Clipboard.SetText(headers);
-            ToolTip tooltip = new ToolTip();
-            tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height+4, 1000);
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeadersAll(headers);
+                Clipboard.SetText(headers);
+                ToolTip tooltip = new ToolTip();
+                tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            }
         }
 
         private void copyImportantButton_Click(object sender, EventArgs e)
         {
             string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path" };
+            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path", "X-Beauceron-Simulation" };
 
             StringBuilder sb = new StringBuilder();
             foreach (string header in headersToDisplay)
@@ -103,10 +109,15 @@ namespace EmailHeadersViewer
 
         private void CopyAllButton2_Click(object sender, EventArgs e)
         {
-            string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            Clipboard.SetText(headers);
-            ToolTip tooltip = new ToolTip();
-            tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeadersAll(headers);
+                Clipboard.SetText(headers);
+                ToolTip tooltip = new ToolTip();
+                tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            }
         }
 
         public void DisplayHeadersAll(string headers)
@@ -141,7 +152,7 @@ namespace EmailHeadersViewer
             if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
             {
                 string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
-                this.DisplayHeaders(headers);
+                this.DisplayHeadersAll(headers);
             }
         }
 
@@ -152,6 +163,7 @@ namespace EmailHeadersViewer
             {
                 string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
                 this.DisplayHeaders(headers);
+                this.DisplayHeadersAll(headers);
             }
         }
     }

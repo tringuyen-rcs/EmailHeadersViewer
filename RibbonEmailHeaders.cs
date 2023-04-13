@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Tools.Ribbon;
+﻿using Microsoft.Office.Interop.Outlook;
+using Microsoft.Office.Tools.Ribbon;
 using System;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
@@ -8,10 +9,20 @@ namespace EmailHeadersViewer
     {
         private Microsoft.Office.Tools.CustomTaskPane taskPane;
         public HeadersViewer userControl;
+        private Outlook.Inspectors inspectors;
 
         private void RibbonEmailHeaders_Load(object sender, RibbonUIEventArgs e)
         {
-            Globals.ThisAddIn.Application.Inspectors.NewInspector += Inspectors_NewInspector;
+            inspectors = Globals.ThisAddIn.Application.Inspectors;
+            inspectors.NewInspector += Inspectors_NewInspector;
+        }
+
+        private void Inspectors_InspectorRemoveEvent(Outlook.Inspector inspector)
+        {
+            if (inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                mailItem.Read -= MailItem_Read;
+            }
         }
 
         private void Inspectors_NewInspector(Outlook.Inspector inspector)
@@ -63,8 +74,6 @@ namespace EmailHeadersViewer
             }
 
             string headers = GetSelectedEmailHeaders();
-            userControl.DisplayHeaders(headers);
-            userControl.DisplayHeadersAll(headers);
             userControl.ReloadHeaders();
         }
     }

@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dataGridViewHeaders = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -38,9 +38,9 @@
             this.copyImportantButton = new System.Windows.Forms.Button();
             this.copyButton = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.reloadButton2 = new System.Windows.Forms.Button();
             this.CopyAllButton2 = new System.Windows.Forms.Button();
             this.dataGridViewHeadersAll = new System.Windows.Forms.DataGridView();
-            this.reloadButton2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewHeaders)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -55,20 +55,20 @@
             this.dataGridViewHeaders.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridViewHeaders.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridViewHeaders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewHeaders.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewHeaders.Location = new System.Drawing.Point(6, 64);
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewHeaders.DefaultCellStyle = dataGridViewCellStyle4;
+            this.dataGridViewHeaders.Location = new System.Drawing.Point(6, 35);
             this.dataGridViewHeaders.Name = "dataGridViewHeaders";
             this.dataGridViewHeaders.RowHeadersVisible = false;
             this.dataGridViewHeaders.RowHeadersWidth = 4;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewHeaders.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewHeaders.RowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dataGridViewHeaders.Size = new System.Drawing.Size(271, 275);
             this.dataGridViewHeaders.TabIndex = 1;
             // 
@@ -118,6 +118,7 @@
             this.copyImportantButton.TabIndex = 2;
             this.copyImportantButton.Text = "Copy Important";
             this.copyImportantButton.UseVisualStyleBackColor = true;
+            this.copyImportantButton.Visible = false;
             this.copyImportantButton.Click += new System.EventHandler(this.copyImportantButton_Click);
             // 
             // copyButton
@@ -145,6 +146,17 @@
             this.tabPage2.Text = "All Headers";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // reloadButton2
+            // 
+            this.reloadButton2.BackColor = System.Drawing.Color.LimeGreen;
+            this.reloadButton2.Location = new System.Drawing.Point(124, 6);
+            this.reloadButton2.Name = "reloadButton2";
+            this.reloadButton2.Size = new System.Drawing.Size(75, 23);
+            this.reloadButton2.TabIndex = 3;
+            this.reloadButton2.Text = "Reload";
+            this.reloadButton2.UseVisualStyleBackColor = false;
+            this.reloadButton2.Click += new System.EventHandler(this.reloadButton2_Click);
+            // 
             // CopyAllButton2
             // 
             this.CopyAllButton2.Location = new System.Drawing.Point(3, 6);
@@ -165,21 +177,10 @@
             this.dataGridViewHeadersAll.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewHeadersAll.Location = new System.Drawing.Point(3, 32);
             this.dataGridViewHeadersAll.Name = "dataGridViewHeadersAll";
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewHeadersAll.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewHeadersAll.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridViewHeadersAll.Size = new System.Drawing.Size(277, 392);
             this.dataGridViewHeadersAll.TabIndex = 1;
-            // 
-            // reloadButton2
-            // 
-            this.reloadButton2.BackColor = System.Drawing.Color.LimeGreen;
-            this.reloadButton2.Location = new System.Drawing.Point(124, 6);
-            this.reloadButton2.Name = "reloadButton2";
-            this.reloadButton2.Size = new System.Drawing.Size(75, 23);
-            this.reloadButton2.TabIndex = 3;
-            this.reloadButton2.Text = "Reload";
-            this.reloadButton2.UseVisualStyleBackColor = false;
-            this.reloadButton2.Click += new System.EventHandler(this.reloadButton2_Click);
             // 
             // HeadersViewer
             // 

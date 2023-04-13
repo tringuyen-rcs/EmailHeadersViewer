@@ -144,5 +144,15 @@ namespace EmailHeadersViewer
                 this.DisplayHeaders(headers);
             }
         }
+
+        public void ReloadHeaders()
+        {
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeaders(headers);
+            }
+        }
     }
 }

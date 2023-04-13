@@ -46,37 +46,9 @@ namespace EmailHeadersViewer
         private static string GetEmailHeaders(Outlook.MailItem mailItem)
         {
             if (mailItem == null) return string.Empty;
-            if (mailItem.MessageClass == "IPM.Note" || mailItem.MessageClass == "IPM.Note.SMIME")
-            {
-                // This is an email message, so return its headers
-                return mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString() ?? string.Empty;
-            }
-            else if (mailItem.Attachments.Count > 0)
-            {
-                // This email contains an attachment, so recursively search for the innermost email within the attachment
-                Outlook.Attachment attachment = mailItem.Attachments[1];
-                if (attachment.Type == Outlook.OlAttachmentType.olEmbeddeditem)
-                {
-                    Outlook.MailItem innerMailItem = attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x37010102") as Outlook.MailItem;
-                    return GetEmailHeaders(innerMailItem);
-                }
-                else if (attachment.FileName.EndsWith(".msg", StringComparison.OrdinalIgnoreCase) || attachment.FileName.EndsWith(".eml", StringComparison.OrdinalIgnoreCase))
-                {
-                    Outlook.MailItem innerMailItem = null;
-                    try
-                    {
-                        innerMailItem = attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x37010102") as Outlook.MailItem;
-                    }
-                    catch (System.Exception)
-                    {
-                        // Unable to retrieve inner message from attachment, return headers of outer message
-                        return GetEmailHeaders(mailItem);
-                    }
-                    return GetEmailHeaders(innerMailItem);
-                }
-            }
-            // This is not an email message, so return an empty string
-            return string.Empty;
+            string headers = string.Empty;
+            headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+            return headers;
         }
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
@@ -93,6 +65,7 @@ namespace EmailHeadersViewer
             string headers = GetSelectedEmailHeaders();
             userControl.DisplayHeaders(headers);
             userControl.DisplayHeadersAll(headers);
+            userControl.ReloadHeaders();
         }
     }
 }

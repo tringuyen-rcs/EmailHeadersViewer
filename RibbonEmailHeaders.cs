@@ -1,10 +1,6 @@
-﻿using Microsoft.Office.Core;
+﻿using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Tools.Ribbon;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace EmailHeadersViewer
@@ -13,58 +9,56 @@ namespace EmailHeadersViewer
     {
         private Microsoft.Office.Tools.CustomTaskPane taskPane;
         public HeadersViewer userControl;
+        private Outlook.Inspectors inspectors;
 
         private void RibbonEmailHeaders_Load(object sender, RibbonUIEventArgs e)
         {
-            // Subscribe to the ActiveInspector events
-            Outlook.Inspectors inspectors = Globals.ThisAddIn.Application.Inspectors;
-            inspectors.NewInspector += new Outlook.InspectorsEvents_NewInspectorEventHandler(Inspectors_NewInspector);
+            inspectors = Globals.ThisAddIn.Application.Inspectors;
+            inspectors.NewInspector += Inspectors_NewInspector;
+        }
 
-            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
-            if (inspector != null)
+        private void Inspectors_InspectorRemoveEvent(Outlook.Inspector inspector)
+        {
+            if (inspector.CurrentItem is Outlook.MailItem mailItem)
             {
-                ((Outlook.InspectorEvents_10_Event)inspector).Activate += new Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activate);
-                ((Outlook.InspectorEvents_10_Event)inspector).Deactivate += new Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivate);
+                mailItem.Read -= MailItem_Read;
             }
         }
 
-        private void Inspectors_NewInspector(Outlook.Inspector Inspector)
+        private void Inspectors_NewInspector(Outlook.Inspector inspector)
         {
-            ((Outlook.InspectorEvents_10_Event)Inspector).Activate += new Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activate);
-            ((Outlook.InspectorEvents_10_Event)Inspector).Deactivate += new Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivate);
+            if (inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                mailItem.Read += MailItem_Read;
+            }
         }
 
-        private void Inspector_Activate()
+        private void MailItem_Read()
         {
-            // Get the selected email's headers
+            string headers = GetSelectedEmailHeaders();
             if (userControl != null)
             {
-                string headers = GetSelectedEmailHeaders();
                 userControl.DisplayHeaders(headers);
                 userControl.DisplayHeadersAll(headers);
-            }
-        }
-
-        private void Inspector_Deactivate()
-        {
-            // Clear the headers
-            if (userControl != null)
-            {
-                userControl.DisplayHeaders("");
-                userControl.DisplayHeadersAll("");
             }
         }
 
         public static string GetSelectedEmailHeaders()
         {
             string headers = string.Empty;
-            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
-
-            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            Outlook.Explorer explorer = Globals.ThisAddIn.Application.ActiveExplorer();
+            if (explorer != null && explorer.Selection.Count == 1 && explorer.Selection[1] is Outlook.MailItem mailItem)
             {
-                headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                headers = GetEmailHeaders(mailItem);
             }
+            return headers;
+        }
 
+        private static string GetEmailHeaders(Outlook.MailItem mailItem)
+        {
+            if (mailItem == null) return string.Empty;
+            string headers = string.Empty;
+            headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
             return headers;
         }
 
@@ -77,15 +71,10 @@ namespace EmailHeadersViewer
                 taskPane.DockPosition = Microsoft.Office.Core.MsoCTPDockPosition.msoCTPDockPositionRight;
                 taskPane.Width = 400;
                 taskPane.Visible = true;
-
             }
 
-            RibbonEmailHeaders ribbonEmailHeaders = Globals.Ribbons.GetRibbon<RibbonEmailHeaders>();
-
-            // Get the selected email's headers
             string headers = GetSelectedEmailHeaders();
-            userControl.DisplayHeaders(headers);
-            userControl.DisplayHeadersAll(headers);
+            userControl.ReloadHeaders();
         }
     }
 }

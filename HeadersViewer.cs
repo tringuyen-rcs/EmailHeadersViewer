@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Tools.Outlook;
+﻿using Microsoft.Office.Interop.Outlook;
+using Microsoft.Office.Tools.Outlook;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 
 namespace EmailHeadersViewer
@@ -21,12 +23,13 @@ namespace EmailHeadersViewer
 
         public void DisplayHeaders(string headers)
         {
+            dataGridViewHeaders.DataSource = null;
             string[] headersArray = headers.Split(new string[] { "\r\n" }, StringSplitOptions.None);
             DataTable dtHeaders = new DataTable();
             dtHeaders.Columns.Add("Header", typeof(string));
             dtHeaders.Columns.Add("Value", typeof(string));
 
-            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path" }; // add more headers to display here
+            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path", "x-beauceron-simulation" }; // add more headers to display here
 
             foreach (string header in headersArray)
             {
@@ -42,9 +45,12 @@ namespace EmailHeadersViewer
             }
 
             dataGridViewHeaders.DataSource = dtHeaders;
-            DataGridViewColumn column = dataGridViewHeaders.Columns[1];
-            dataGridViewHeaders.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            column.FillWeight = 1;
+            if (dataGridViewHeaders.Columns.Count > 1)
+            {
+                DataGridViewColumn column = dataGridViewHeaders.Columns[1];
+                dataGridViewHeaders.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                column.FillWeight = 1;
+            }
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -54,16 +60,21 @@ namespace EmailHeadersViewer
 
         private void copyButton_Click(object sender, EventArgs e)
         {
-            string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            Clipboard.SetText(headers);
-            ToolTip tooltip = new ToolTip();
-            tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height+4, 1000);
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeadersAll(headers);
+                Clipboard.SetText(headers);
+                ToolTip tooltip = new ToolTip();
+                tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            }
         }
 
         private void copyImportantButton_Click(object sender, EventArgs e)
         {
             string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path" };
+            string[] headersToDisplay = { "authentication-results", "delivered-to", "from", "x-originating-ip", "x-original-ip", "return-path", "X-Beauceron-Simulation" };
 
             StringBuilder sb = new StringBuilder();
             foreach (string header in headersToDisplay)
@@ -88,15 +99,25 @@ namespace EmailHeadersViewer
 
         private void reloadButton_Click(object sender, EventArgs e)
         {
-            this.DisplayHeaders(RibbonEmailHeaders.GetSelectedEmailHeaders());
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeaders(headers);
+            }
         }
 
         private void CopyAllButton2_Click(object sender, EventArgs e)
         {
-            string headers = RibbonEmailHeaders.GetSelectedEmailHeaders();
-            Clipboard.SetText(headers);
-            ToolTip tooltip = new ToolTip();
-            tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeadersAll(headers);
+                Clipboard.SetText(headers);
+                ToolTip tooltip = new ToolTip();
+                tooltip.Show("Copied All Headers!", copyButton, 4, copyButton.Height + 4, 1000);
+            }
         }
 
         public void DisplayHeadersAll(string headers)
@@ -127,7 +148,23 @@ namespace EmailHeadersViewer
 
         private void reloadButton2_Click(object sender, EventArgs e)
         {
-            this.DisplayHeadersAll(RibbonEmailHeaders.GetSelectedEmailHeaders());
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeadersAll(headers);
+            }
+        }
+
+        public void ReloadHeaders()
+        {
+            Outlook.Inspector inspector = Globals.ThisAddIn.Application.ActiveInspector();
+            if (inspector != null && inspector.CurrentItem is Outlook.MailItem mailItem)
+            {
+                string headers = mailItem.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x007D001E")?.ToString();
+                this.DisplayHeaders(headers);
+                this.DisplayHeadersAll(headers);
+            }
         }
     }
 }
